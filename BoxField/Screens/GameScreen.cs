@@ -24,6 +24,9 @@ namespace BoxField
 
         int boxspeed = 5;
         int boxCounter;
+        Color randomColourLeft, randomColourRight;
+
+        Random rng = new Random();
 
         public GameScreen()
         {
@@ -37,8 +40,9 @@ namespace BoxField
         public void OnStart()
         {
             // set game start values
-            Box b1 = new Box(25, 24, 20);
-            Box b2 = new Box(100, 24, 20);
+            Colourchooser();
+            Box b1 = new Box(25, 24, 20, randomColourLeft);
+            Box b2 = new Box(100, 24, 20, randomColourRight);
             boxesLeft.Add(b1);
             boxesRight.Add(b2);
         }
@@ -85,8 +89,9 @@ namespace BoxField
             boxCounter++;
             if (boxCounter == 7)
             {
-                Box b1 = new Box(25, 24, 20);
-                Box b2 = new Box(100, 24, 20);
+                Colourchooser();
+                Box b1 = new Box(25, 24, 20, randomColourLeft);
+                Box b2 = new Box(100, 24, 20, randomColourRight);
                 boxesLeft.Add(b1);
                 boxesRight.Add(b2);
                 boxCounter = 0;
@@ -100,12 +105,20 @@ namespace BoxField
             // draw boxes to screen
             foreach (Box b in boxesLeft)
             {
+                boxBrush.Color = b.colour;
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
             }
             foreach (Box b in boxesRight)
             {
+                boxBrush.Color = b.colour;
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
             }
+        }
+
+        private void Colourchooser ()
+        {
+            randomColourLeft = Color.FromArgb(rng.Next(0, 255), rng.Next(0, 255), rng.Next(0, 255));
+            randomColourRight = Color.FromArgb(rng.Next(0, 255), rng.Next(0, 255), rng.Next(0, 255));
         }
     }
 }
