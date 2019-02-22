@@ -12,6 +12,7 @@ namespace BoxField
 {
     public partial class GameScreen : UserControl
     {
+        #region Globals
         //player1 button control keys
         Boolean leftArrowDown, rightArrowDown;
 
@@ -22,11 +23,15 @@ namespace BoxField
         List<Box> boxesLeft = new List<Box>();
         List<Box> boxesRight = new List<Box>();
 
-        int boxspeed = 5;
+        static int boxSpeed = 5;
         int boxCounter;
+        static int boxSize = 20;
         Color randomColourLeft, randomColourRight;
+        static Color heroColour = Color.FromArgb(216, 191, 216);
+        Box player = new Box(400, 465, boxSize, heroColour);
 
         Random rng = new Random();
+        #endregion
 
         public GameScreen()
         {
@@ -41,8 +46,8 @@ namespace BoxField
         {
             // set game start values
             Colourchooser();
-            Box b1 = new Box(25, 24, 20, randomColourLeft);
-            Box b2 = new Box(100, 24, 20, randomColourRight);
+            Box b1 = new Box(25, 24, boxSize, randomColourLeft);
+            Box b2 = new Box(100, 24, boxSize, randomColourRight);
             boxesLeft.Add(b1);
             boxesRight.Add(b2);
         }
@@ -78,8 +83,17 @@ namespace BoxField
         private void gameLoop_Tick(object sender, EventArgs e)
         {
             // update location of all boxes (drop down screen)
-            foreach (Box b in boxesLeft) { b.y += boxspeed; }
-            foreach (Box b in boxesRight) { b.y += boxspeed; }
+            foreach (Box b in boxesLeft.Union(boxesRight)) { b.Move(boxSpeed); }
+            if (leftArrowDown == true) { player.Move(boxSpeed, "left"); }
+            if (rightArrowDown == true) { player.Move(boxSpeed, "right"); }
+
+            foreach (Box b in boxesLeft.Union(boxesRight))
+            {
+                if (player.Collision(b))
+                {
+                    gameLoop.Stop();
+                }
+            }
 
             // remove box if it has gone of screen
             if (boxesLeft[0].y > this.Height) { boxesLeft.RemoveAt(0); }
@@ -103,16 +117,14 @@ namespace BoxField
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
             // draw boxes to screen
-            foreach (Box b in boxesLeft)
+            foreach (Box b in boxesLeft.Union(boxesRight))
             {
                 boxBrush.Color = b.colour;
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
             }
-            foreach (Box b in boxesRight)
-            {
-                boxBrush.Color = b.colour;
-                e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
-            }
+
+            boxBrush.Color = heroColour;
+            e.Graphics.FillEllipse(boxBrush, player.x, player.y, player.size, player.size);
         }
 
         private void Colourchooser ()
